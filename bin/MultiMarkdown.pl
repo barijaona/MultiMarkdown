@@ -33,10 +33,10 @@ use warnings;
 
 use File::Basename;
 
-eval {require MT};  # Test to see if we're running in MT.
+eval {require Text::ASCIIMathML};  # Test to see if we have Text::ASCIIMathML
 unless ($@) {
 	require Text::ASCIIMathML;
-} else {	# Otherwise look for ASCIIMathML.pm next to MultiMarkdown.pl
+} else {	# Otherwise look for ASCIIMathML.pm next to MultiMarkdown.pl (case of MT)
 	my $me = $0;				# Where am I?
 
 	# Am I running in Windoze?
