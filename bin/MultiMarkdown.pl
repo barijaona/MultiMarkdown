@@ -772,6 +772,8 @@ sub _DoAnchors {
 			  \5		# matching quote
   		  	  [ \t]*	# ignore any spaces/tabs between closing quote and )
 			)?			# title is optional
+			((([ \t])+((\S+=\S+)|(\S+=".*?")))*)  # MultiMarkdown addition : attributes = $7
+			[ \t]*
 		  \)
 		)
 	}{
@@ -780,6 +782,7 @@ sub _DoAnchors {
 		my $link_text   = $2;
 		my $url	  		= $3;
 		my $title		= $6;
+		my $attributes  = $7;
 
 		$url =~ s! \* !$g_escape_table{'*'}!gx;		# We've got to encode these to avoid
 		$url =~ s!  _ !$g_escape_table{'_'}!gx;		# conflicting with italics/bold.
@@ -792,6 +795,15 @@ sub _DoAnchors {
 			$title =~ s!  _ !$g_escape_table{'_'}!gx;
 			$result .=  " title=\"$title\"";
 		}
+
+		# MultiMarkdown addition for attributes
+		while ($attributes =~ s/(\S+)="(.*?)"//) {
+			$result .= " $1=\"$2\"";
+		}
+		while ($attributes =~ /(\S+)=(\S+)/g) {
+			$result .= " $1=\"$2\"";
+		}
+
 		$result .= ">$link_text</a>";
 
 		$result;
