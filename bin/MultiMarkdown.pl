@@ -935,6 +935,8 @@ sub _DoImages {
 			  \5		# matching quote
 			  [ \t]*
 			)?			# title is optional
+			((([ \t])+((\S+=\S+)|(\S+=".*?")))*)  # MultiMarkdown addition : attributes = $7
+			[ \t]*
 		  \)
 		)
 	}{
@@ -943,6 +945,7 @@ sub _DoImages {
 		my $alt_text    = $2;
 		my $url	  		= $3;
 		my $title		= (defined $6) ? $6 : '';
+		my $attributes  = $7;
 
 		$alt_text =~ s/"/&quot;/g;
 		$title    =~ s/"/&quot;/g;
@@ -960,6 +963,15 @@ sub _DoImages {
 			$title =~ s!  _ !$g_escape_table{'_'}!gx;
 			$result .=  " title=\"$title\"";
 		}
+
+		# MultiMarkdown addition for attributes
+		while ($attributes =~ s/(\S+)="(.*?)"//) {
+			$result .= " $1=\"$2\"";
+		}
+		while ($attributes =~ /(\S+)=(\S+)/g) {
+			$result .= " $1=\"$2\"";
+		}
+
 		$result .= $g_empty_element_suffix;
 
 		$result;
