@@ -321,6 +321,7 @@ sub Markdown {
 	%g_attributes = ();
 
 
+	$text .= "";
 	# Standardize line endings:
 	$text =~ s{\r\n}{\n}g; 	# DOS to Unix
 	$text =~ s{\r}{\n}g; 	# Mac to Unix
