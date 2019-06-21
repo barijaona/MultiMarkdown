@@ -607,6 +607,9 @@ sub _RunBlockGamut {
 #
 	my $text = shift;
 
+	$text = _DoFencedCodeBlocks($text);
+	$text = _HashHTMLBlocks($text);
+
 	$text = _DoHeaders($text);
 
 	# Do tables first to populate the table id's for cross-refs
@@ -1258,6 +1261,40 @@ sub _ProcessListItems {
 }
 
 
+
+sub _DoFencedCodeBlocks {
+#
+#	Fenced code blocks (start and ending marked by '~~~' or '```'k)
+#	to be converted into `<pre><code>` blocks.
+#
+
+	my $text = shift;
+
+	$text =~ s{
+			(
+			  (								# Wrap whole match
+				^(~{3,}|`{3,})  				# '~~~' or '```' at the start of a line
+				\s*([^\s]*)\s*\n				# rest of the first line
+				((.*\n)*)  						# subsequent consecutive lines : the code block
+				\g3.*
+			  )
+			)
+		}{
+			my $class;
+			if (defined $4) {
+				$class = " class=\"language-". $4 ."\"";
+			} else {
+				$class="";
+			};
+			my $result = _EncodeCode($5);
+			$result =~ s/\A\n+//; # trim leading newlines
+			$result =~ s/\n+\z//; # trim trailing newlines
+			$result = "\n\n<pre><code". $class . ">" . $result . "</code></pre>\n\n";
+			$result;
+		}egmx;
+
+	return $text;
+}
 
 sub _DoCodeBlocks {
 #
