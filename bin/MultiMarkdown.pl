@@ -608,12 +608,15 @@ sub _RunBlockGamut {
 	my $text = shift;
 
 	$text = _DoFencedCodeBlocks($text);
+	# We already ran _HashHTMLBlocks() before, in Markdown(), but that
+	# was to escape raw HTML in the original Markdown source. This time,
+	# we're escaping the markup we've just created, so that we don't get
+	# greedy nor wrap <p> tags around block-level tags.
 	$text = _HashHTMLBlocks($text);
 
 	$text = _DoHeaders($text);
 
 	# Do tables first to populate the table id's for cross-refs
-	# Escape <pre><code> so we don't get greedy with tables
 	$text = _DoTables($text);
 	
 	# And now, protect our tables
@@ -629,10 +632,7 @@ sub _RunBlockGamut {
 	$text = _DoCodeBlocks($text);
 	$text = _DoBlockQuotes($text);
 
-	# We already ran _HashHTMLBlocks() before, in Markdown(), but that
-	# was to escape raw HTML in the original Markdown source. This time,
-	# we're escaping the markup we've just created, so that we don't wrap
-	# <p> tags around block-level tags.
+	# And now, protect our blocks
 	$text = _HashHTMLBlocks($text);
 	$text = _FormParagraphs($text);
 
@@ -1321,7 +1321,7 @@ sub _DoCodeBlocks {
 			$codeblock =~ s/\A\n+//; # trim leading newlines
 			$codeblock =~ s/\n+\z//; # trim trailing newlines
 
-			$result = "\n\n<pre><code>" . $codeblock . "</code></pre>\n\n";	# CHANGED: Removed newline for MMD
+			$result = "\n\n<pre><code>" . $codeblock . "</code></pre>\n\n";
 
 			$result;
 		}egmx;
